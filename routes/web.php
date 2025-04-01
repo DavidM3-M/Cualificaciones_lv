@@ -7,9 +7,28 @@ use App\Http\Controllers\IdiomaController;
 use App\Http\Controllers\DocumentoSoporteController;
 use App\Http\Controllers\EstudioController;
 use App\Http\Controllers\InformacionContactoController;
+use App\Http\Controllers\CertificadoController;
+
 use Illuminate\Support\Facades\Route;
 
+Route::resource('idiomas', IdiomaController::class);
+
+Route::get('/certificado/{id}/pdf', [CertificadoController::class, 'generarPdf']);
+Route::post('/certificado/generar', [CertificadoController::class, 'generarCertificado']);
+
+
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
+
+Route::middleware(['web'])->group(function () {
+    Route::post('/certificado/generar', [CertificadoController::class, 'generarCertificado']);
+});
+
+
+
 Route::prefix('api')->group(function () {
+    
     // Rutas para Persona
     Route::get('/personas', [PersonaController::class, 'index']);
     Route::post('/personas', [PersonaController::class, 'store']);
@@ -58,4 +77,7 @@ Route::prefix('api')->group(function () {
     Route::get('/contactos/{id}', [InformacionContactoController::class, 'show']);
     Route::put('/contactos/{id}', [InformacionContactoController::class, 'update']);
     Route::delete('/contactos/{id}', [InformacionContactoController::class, 'destroy']);
+
+    
+
 });

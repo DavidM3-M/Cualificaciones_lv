@@ -7,37 +7,55 @@ use Illuminate\Http\Request;
 
 class IdiomaController extends Controller
 {
-    public function index()
+    public function subirCertificado(Request $request)
     {
-        return Idioma::all();
+        $request->validate([
+            'idioma' => 'required|string|max:255',
+            'certificado_de_idioma' => 'required|file|mimes:pdf,jpg,png|max:2048', // Ajusta los tipos y tamaño según sea necesario
+        ]);
+
+        // Subir el archivo
+        $path = $request->file('certificado_de_idioma')->store('certificados', 'public');
+
+        // Crear el registro en la base de datos
+        Idioma::create([
+            'idioma' => $request->input('idioma'),
+            'certificado_de_idioma' => $path,
+        ]);
+
+        return redirect()->route('idiomas.index')->with('success', 'Idioma creado con éxito.');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'id_documento' => 'required|exists:documentos,id_documento',
-            'idioma' => 'required|string|max:20',
-            'certificado_de_idioma' => 'required',
-            'nivel_de_idioma' => 'nullable|file',
+            'idioma' => 'required|string|max:255',
+            'certificado_de_idioma' => 'required|file|mimes:pdf,jpg,png|max:2048', // Ajusta los tipos y tamaño según sea necesario
         ]);
 
-        return Idioma::create($request->all());
+        // Subir el archivo
+        $path = $request->file('certificado_de_idioma')->store('certificados', 'public');
+
+        // Crear el registro en la base de datos
+        Idioma::create([
+            'idioma' => $request->input('idioma'),
+            'certificado_de_idioma' => $path,
+        ]);
+
+        return redirect()->route('idiomas.index')->with('success', 'Idioma creado con éxito.');
     }
 
-    public function show($id)
+    public function create()
     {
-        return Idioma::findOrFail($id);
+        return view('archivo'); // Asegúrate de que el nombre de la vista sea correcto
     }
 
-    public function update(Request $request, $id)
+    public function index()
     {
-        $idioma = Idioma::findOrFail($id);
-        $idioma->update($request->all());
-        return $idioma;
-    }
+        // Obtén todos los registros de la tabla 'idiomas'
+        $idiomas = Idioma::all();
 
-    public function destroy($id)
-    {
-        return Idioma::destroy($id);
+        // Retorna una vista con los datos
+        return view('idiomas.index', compact('idiomas'));
     }
 }
